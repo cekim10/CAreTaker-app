@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import RNCalendarEvents from "react-native-calendar-events";
+// import * as Permissions from 'react-native-permissions';
 import { Linking } from 'react-native';
 import {
   View,
@@ -16,7 +18,7 @@ import {
 } from 'react-native-responsive-screen';
 import Features from '../components/features';
 import Tts from 'react-native-tts';
-// import addToIosCalendar from "./calendarhelp.js"
+// import addToIosCalendar from '../constants/calendarhelp'
 
 const App = () => {
   const [result, setResult] = useState('');
@@ -30,6 +32,7 @@ const App = () => {
   const url2 = "abcd://abcd.com";
   const number = '+910987654321'
   const message = "hello there!!"
+
 
   const sendTextMessage = useCallback(async (phNumber, message) => {
     const separator = Platform.OS === 'ios' ? '&' : '?';
@@ -85,99 +88,147 @@ const App = () => {
 
   const fetchResponse = async () => {
     if (result.trim().length > 0) {
-      setLoading(true);
-      let newMessages = [...messages];
-      newMessages.push({ role: 'user', content: result.trim() });
-      setMessages([...newMessages]);
-  
-      // Sending text to Flask server
-      try {
-        const response = await fetch('http://127.0.0.1:5001/data', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ text: result.trim() }), // Sending the text as a JSON object
-        });
-        const data = await response.json();
-        if (response.ok) {
-          console.log(response);
-          if (data.gpt_response === "open_youtube") {
-            // Open YouTube app
-            const youtubeUrl = 'https://www.youtube.com/';
-            const supported = await Linking.canOpenURL(youtubeUrl);
-            if (supported) {
-              await Linking.openURL(youtubeUrl);
+        setLoading(true);
+        let newMessages = [...messages];
+        newMessages.push({ role: 'user', content: result.trim() });
+        setMessages([...newMessages]);
+
+        // Sending text to Flask server
+        try {
+            const response = await fetch('http://127.0.0.1:5001/data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text: result.trim() }), // Sending the text as a JSON object
+            });
+            const data = await response.json();
+            if (response.ok) {
+                console.log(response);
+                if (data.gpt_response === "open_youtube") {
+                    // AI response indicates opening YouTube
+                    newMessages.push({ role: 'assistant', content: 'Opening YouTube...' });
+                    setMessages([...newMessages]);
+
+                    // Open YouTube app
+                    const youtubeUrl = 'https://www.youtube.com/';
+                    const supported = await Linking.canOpenURL(youtubeUrl);
+                    if (supported) {
+                        await Linking.openURL(youtubeUrl);
+                    } else {
+                        Alert.alert('Error', 'The YouTube app is not supported on this device.');
+                    }
+                } 
+                else if (data.gpt_response === "open_calendar") {
+                  // Open Calendar app
+                  newMessages.push({ role: 'assistant', content: 'Opening Calendar...' });
+                  setMessages([...newMessages]);
+                  const calendarUrl = 'calshow://';
+                  const supported = await Linking.canOpenURL(calendarUrl);
+                  if (supported) {
+                    await Linking.openURL(calendarUrl);
+                  }
+                  else {
+                    Alert.alert('Error', 'The Calendar app is not supported on this device.');
+                  }
+                }
+                else if (data.gpt_response === "create_event") {
+                  // AI response indicates adding an event to the calendar
+                  newMessages.push({ role: 'assistant', content: 'Adding event to calendar...' });
+                  setMessages([...newMessages]);
+
+                  // Hardcoded values for the event
+                  const eventConfig = {
+                      title: "Take medicines",
+                      startDate: "2024-03-10T08:00:00.000Z",
+                      endDate: "2024-03-10T09:00:00.000Z",
+                      location: "At home",
+                      notes: "Take medication given by doctor",
+                      // Add more properties as needed
+                  };
+
+                  console.log("Adding event to calendar...");
+                  console.log(eventConfig);
+                  try {
+                      // You can call the function to add the event to the calendar here
+                      // For example:
+                      await RNCalendarEvents.saveEvent("Take medicines", eventConfig);
+                      console.log("Event added successfully");
+                      newMessages.push({ role: 'assistant', content: 'Event added' });
+                      setMessages([...newMessages]);
+                  } catch (error) {
+                      console.error("Error adding event:", error);
+                      Alert.alert("Error", "Failed to add the event. Please try again.");
+                  }
+              }
+                else if (data.gpt_response === "open_photos") {
+                    // AI response indicates opening Photos
+                    newMessages.push({ role: 'assistant', content: 'Opening Photos...' });
+                    setMessages([...newMessages]);
+
+                    // Open Photos (iOS)
+                    Linking.openURL("photos-redirect://");
+                } 
+                else if (data.gpt_response === "open_settings") {
+                    // AI response indicates opening Settings
+                    newMessages.push({ role: 'assistant', content: 'Opening Settings...' });
+                    setMessages([...newMessages]);
+
+                    // Open Settings
+                    const settingsUrl = 'app-settings://';
+                    const supported = await Linking.canOpenURL(settingsUrl);
+                    if (supported) {
+                        await Linking.openURL(settingsUrl);
+                    } else {
+                        Alert.alert('Error', 'The Settings app is not supported on this device.');
+                    }
+                } 
+                else if (data.gpt_response === "open_maps") {
+                    // AI response indicates opening Maps
+                    newMessages.push({ role: 'assistant', content: 'Opening Maps...' });
+                    setMessages([...newMessages]);
+
+                    // Open Maps (iOS)
+                    const mapsUrl = 'maps://';
+                    const supported = await Linking.canOpenURL(mapsUrl);
+                    if (supported) {
+                        await Linking.openURL(mapsUrl);
+                    } else {
+                        Alert.alert('Error', 'Maps are not supported on this device.');
+                    }
+                } 
+                else if (data.gpt_response === "open_sms") {
+                    // AI response indicates opening SMS
+                    newMessages.push({ role: 'assistant', content: 'Opening SMS...' });
+                    setMessages([...newMessages]);
+
+                    // Open SMS app
+                    sendTextMessage(number, message);
+                }  
+                else if (data.gpt_response === "emergency") {
+                  // AI response indicates opening SMS
+                  newMessages.push({ role: 'assistant', content: 'Sent SOS' });
+                  setMessages([...newMessages]);
+              }       
+                else {
+                    // Push the normal response to the messages
+                    newMessages.push({ role: 'assistant', content: data.gpt_response });
+                    setMessages([...newMessages]);
+                    updateScrollView();
+                    startTextToSpeech(data.gpt_response);
+                }
             } else {
-              Alert.alert('Error', 'The YouTube app is not supported on this device.');
+                Alert.alert('Error', data.error);
             }
-          } else if (data.gpt_response === "open_calendar") {
-            // Open Calendar app
-            const calendarUrl = 'calshow://';
-            const supported = await Linking.canOpenURL(calendarUrl);
-            if (supported) {
-              await Linking.openURL(calendarUrl);
-            } else {
-              Alert.alert('Error', 'The Calendar app is not supported on this device.');
-            }
-          } 
-          else if (data.gpt_response === "open_photos") {
-            // Open Photos (iOS)
-            Linking.openURL("photos-redirect://");
-          } else if (data.gpt_response === "open_settings") {
-            // Open Settings
-            const settingsUrl = 'app-settings://';
-            const supported = await Linking.canOpenURL(settingsUrl);
-            if (supported) {
-              await Linking.openURL(settingsUrl);
-            } else {
-              Alert.alert('Error', 'The Settings app is not supported on this device.');
-            }
-          } else if (data.gpt_response === "open_maps") {
-            // Open Maps (iOS)
-            const mapsUrl = 'maps://';
-            const supported = await Linking.canOpenURL(mapsUrl);
-            if (supported) {
-              await Linking.openURL(mapsUrl);
-            } else {
-              Alert.alert('Error', 'Maps are not supported on this device.');
-            }
-          }
-          else if (data.gpt_response === "open_sms"){
-            sendTextMessage(number, message);
-          }
-          else if (data.gpt_response === "open_reminders") {
-            // Open Reminders (iOS)
-            const remindersUrl = 'x-apple-reminder://';
-            const supported = await Linking.canOpenURL(remindersUrl);
-            if (supported) {
-                await Linking.openURL(remindersUrl);
-            } else {
-                Alert.alert('Error', 'The Reminders app is not supported on this device.');
-            }
-          } 
-          else {
-            // Push the normal response to the messages
-            newMessages.push({ role: 'assistant', content: data.gpt_response });
-            setMessages([...newMessages]);
-            updateScrollView();
-            startTextToSpeech(data.gpt_response);
-          }
-        } else {
-          Alert.alert('Error', data.error);
+        } catch (error) {
+            console.error('Error:', error);
+            Alert.alert('Error', 'Failed to communicate with the server.');
+        } finally {
+            setLoading(false);
+            setResult('');
         }
-      } catch (error) {
-        console.error('Error:', error);
-        Alert.alert('Error', 'Failed to communicate with the server.');
-      } finally {
-        setLoading(false);
-        setResult('');
-      }
     }
-  };
-  
-  
-  
+ };
 
   const updateScrollView = () => {
     setTimeout(() => {
@@ -225,24 +276,24 @@ const App = () => {
   }, []);
 
   return (
-    <View className="flex-1 bg-white" style={{flex: 1, backgroundColor: '#9b59b6'}}>
+    <View className="flex-1 bg-white" style={{flex: 1, backgroundColor: '#CAA8F5'}}>
       <SafeAreaView className="flex-1 flex mx-5">
         {/* Bot icon */}
         <View className="flex-row justify-center">
           <Image
-            source={require('../../assets/images/catIcon.png')}
-            style={{ height: hp(15), width: hp(18) }}
+            source={require('../../assets/images/catIcon3-2.png')}
+            style={{ height: hp(18), width: hp(32), marginVertical: hp(1)}}
           />
         </View>
 
         {/* Features or message history */}
         {messages.length > 0 ? (
           <View className="space-y-2 flex-1">
-            <Text className="text-white-700 font-semibold ml-1" style={{ fontSize: wp(5) }}>
+            <Text className="text-white-700 font-semibold ml-1" style={{ fontSize: wp(7) , color: 'white'}}>
               Assistant
             </Text>
 
-            <View style={{ height: hp(58) }} className="bg-neutral-200 rounded-3xl p-4">
+            <View style={{ height: hp(58) }} className="bg-purple-100 rounded-3xl p-4">
               <ScrollView
                 ref={scrollViewRef}
                 bounces={false}
@@ -251,7 +302,7 @@ const App = () => {
                 {messages.map((message, index) => {
                   if (message.role === 'assistant') {
                     return (
-                      <View key={index} style={{ width: wp(70) }} className="bg-emerald-100 p-2 rounded-xl rounded-tl-none">
+                      <View key={index} style={{ width: wp(70) }} className="bg-orange-100 p-2 rounded-xl rounded-tl-none">
                         <Text className="text-neutral-800" style={{ fontSize: wp(4) }}>
                           {message.content}
                         </Text>
@@ -301,7 +352,7 @@ const App = () => {
             </TouchableOpacity>
           )}
           {messages.length > 0 && (
-            <TouchableOpacity onPress={clear} className="bg-neutral-400 rounded-3xl p-2 absolute right-10">
+            <TouchableOpacity onPress={clear} className="bg-purple-900 rounded-3xl p-2 absolute right-10">
               <Text className="text-white font-semibold">Clear</Text>
             </TouchableOpacity>
           )}

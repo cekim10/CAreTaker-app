@@ -43,28 +43,28 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 export default function WelcomeScreen() {
     const navigation = useNavigation();
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: '#9b59b6'}}>
+    <SafeAreaView style={{flex: 1, backgroundColor: '#caa8f5'}}>
         {/* title */}
         <View style={{marginVertical: 20}}>
-            <Text style={{fontSize: wp(10), textAlign: 'center', fontWeight: 'bold', color: 'white'}}>
+            <Text style={{fontSize: wp(13), textAlign: 'center', fontWeight: 'bold', color: 'white'}}>
                 CareTaker
             </Text>
-            <Text style={{fontSize: wp(4), textAlign: 'center', fontWeight: '900', color: 'white'}}>
+            <Text style={{fontSize: wp(6), textAlign: 'center', fontWeight: '900', color: 'white'}}>
                 Virtual Assistant for You
             </Text>
         </View>
         
         {/* assistant image */}
-        <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+        <View style={{flexDirection: 'row', justifyContent: 'center', marginVertical: hp(10)}}>
             <Image  
-                source={require('../../assets/images/catIcon.png')}
-                style={{height: wp(75), width: wp(75)}}
+                source={require('../../assets/images/catIcon3-2.png')}
+                style={{height: wp(50), width: wp(90)}}
             />
         </View>
         
         {/* start button */}
-        <TouchableOpacity onPress={() => navigation.navigate('Home')} style={{ backgroundColor: 'purple', marginVertical: hp(10),marginHorizontal: hp(7), paddingVertical: hp(3), paddingHorizontal: wp(3), borderRadius: 20 }}>
-            <Text style={{ fontSize: wp(6), fontWeight: 'bold', color: 'white', textAlign: 'center' }}>
+        <TouchableOpacity onPress={() => navigation.navigate('Home')} style={{ backgroundColor: '#592E83', marginVertical: hp(5),marginHorizontal: hp(7), paddingVertical: hp(3), paddingHorizontal: wp(3), borderRadius: 20 }}>
+            <Text style={{ fontSize: wp(8), fontWeight: 'bold', color: 'white', textAlign: 'center' }}>
                 Get Started
             </Text>
         </TouchableOpacity>

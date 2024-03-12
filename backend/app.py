@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import openai
 from langchain.prompts import FewShotPromptTemplate, PromptTemplate
 from twilio.rest import Client
+from datetime import datetime, timedelta
 
 account_sid = 'AC71abd9bdd8dff6c3e2e021dd9354eae1'
 auth_token = 'b70d14389b80a49ee78cfd908f37baad'
@@ -76,17 +77,7 @@ def chat(query):
     chatStr += f"{response['choices'][0]['text']}\n"
     return response["choices"][0]["text"]
 
-def parse_reminder_command(text):
-    if "set an alarm" in text.lower() and "for" in text.lower():
-        time_index = text.lower().index("for") + len("for")
-        time = text[time_index:].strip()
-        note_index = text.lower().index("to") + len("to")
-        note = text[note_index:].strip()
-        print (note)
-        return time, note
-    else:
-        return None, None
-
+@app.route("/data", methods=["POST"])
 @app.route("/data", methods=["POST"])
 def handle_data():
     data = request.get_json()
@@ -96,47 +87,32 @@ def handle_data():
 
     if text.lower() == "jarvis help":
         response = support(text)
-
-    elif text.lower().startswith("set an alarm"):
-        print("in reminder")
-        time, note = parse_reminder_command(text)
-        if time and note:
-            response = f"Setting an alarm for {time} to {note}"
-        else:
-            response = "Sorry, I couldn't understand the reminder command."
-            
     elif text.lower() == "open youtube":
         response = "open_youtube"
-        
     elif text.lower() == "open calendar":
         response = "open_calendar"
-        
     elif text.lower() == "open photos":
         response = "open_photos"
-        
     elif text.lower() == "open settings":
         response = "open_settings"
-        
-    elif text.lower() == "open map":
+    elif text.lower() == "open maps":
         response = "open_maps"
- 
     elif text.lower() == "send message":
         response = "open_sms"
-
-    elif text.lower() == "open reminder":
-        response = "open_reminders"
-
     elif text.lower() == "jarvis emergency":
         message = client.messages.create(
-        from_='+18666791390',
-        body='There is an emergency!',
-        to='+18315296251'
+            from_='+18666791390',
+            body='Emergency!!!!',
+            to='+18777804236'
         )
         print(message.sid)
+        response = "emergency"
     else:
         response = chat(text)
 
     return jsonify({"data_received": text, "gpt_response": response})
+
+
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5001)

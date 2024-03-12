@@ -78,5 +78,12 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>tel</string>
+		<string>sms</string>
+	</array>
+	<key>NSCalendarsUsageDescription</key>
+<string>This app requires access to the calendar</string>	
 </dict>
 </plist>
